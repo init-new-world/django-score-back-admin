@@ -1,0 +1,76 @@
+{% extends "layout.html" %}
+
+{% block main %}
+<h1 style="text-align:center;">成绩分析</h1>
+<p style="text-align:center;">可以分析成绩情况,并给出成绩报告图(额外功能,不在要求内)</p>
+<form style="display:none;" action="/api-search/" method="post" id="stuform">{% csrf_token %}</form>
+<div id="show"></div>
+<table id="datatable" style="display:none;">
+  <thead><th></th><th>语文</th><th>数学</th><th>英语</th><th>物理</th><th>化学</th><th>总成绩</th></thead>
+  <tbody id="show-charts"></tbody>
+</table>
+{% endblock %}
+
+{% block extra %}
+<script>
+</script>
+<script>
+  function Sleep(delay) {
+    var start = (new Date()).getTime();
+    while((new Date()).getTime() - start < delay){
+      continue;
+    }
+  }
+  $(document).ready(function(){
+    $("#stuform").ajaxSubmit(function(message){
+      console.log(message);
+      var obj = eval("("+message+")");
+      obj = eval("("+obj.data+")");
+      var html = "";
+      $("#show-charts").empty();
+      for(var i=0;i<obj.length;i++){
+        html += "<tr>";
+        html += "<th>" + obj[i].fields.name + "</th>";
+        html += "<td>" + obj[i].fields.chi + "</td>";
+        html += "<td>" + obj[i].fields.mat + "</td>";
+        html += "<td>" + obj[i].fields.eng + "</td>";
+        html += "<td>" + obj[i].fields.phy + "</td>";
+        html += "<td>" + obj[i].fields.che + "</td>";
+        html += "<td>" + obj[i].fields.allscore + "</td>";
+        html += "</tr>";    
+      }
+      //console.log(html);
+      $("#show-charts").append(html);
+    });
+  });
+  setTimeout(function(){
+    Sleep(123);
+    var chart = {type:"column"};
+    var title = {text:"成绩分析表"};
+    var subtitle = {text:"1234567-Init_new_world"};
+    var yAxis = {
+      allowDecimals: false,
+      title:{
+        text: "分数"
+      }
+    }
+    var tooltip = {
+      formatter: function(){
+        return "<b>" + this.series.name + "</b><br/>" + this.point.name + " " + this.point.y + "分";
+      }
+    };
+    var credits = {enabled:false};
+    var json = {};
+    var data = {table:"datatable"};
+    console.log(data);
+    json.chart = chart;
+    json.title = title;
+    json.subtitle = subtitle;
+    json.yAxis = yAxis;
+    json.credits = credits;
+    json.tooltip = tooltip;
+    json.data = data;
+    $('#show').highcharts(json);
+  },500);
+</script>
+{% endblock %}

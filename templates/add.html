@@ -1,0 +1,99 @@
+{% extends "layout.html" %}
+
+{% block main %}
+<h1 style="text-align:center;">添加记录</h1>
+<form action="/api-add/" id="stuform" method="post">
+  {% csrf_token %}
+  <div class="grid-x grid-padding-x">
+    <div class="large-6 medium-6 cell">
+      <label>考号</label>
+      <input type="text" placeholder="e.g. 1234567" id="num" name="num"/>
+    </div>
+    <div class="large-6 medium-6 cell">
+      <label>姓名</label>
+      <input type="text" placeholder="e.g. Init_new_world" id="name" name="name"/>
+    </div>
+  </div>
+  <div class="grid-x grid-padding-x">
+    <div class="large-2 medium-2 cell">
+      <label>语文</label>
+      <input type="text" placeholder="e.g. 100" id="chi" name="chi"/>
+    </div>
+    <div class="large-2 medium-2 cell">
+      <label>数学</label>
+      <input type="text" placeholder="e.g. 100" id="mat" name="mat"/>
+    </div>
+    <div class="large-2 medium-2 cell">
+      <label>英语</label>
+      <input type="text" placeholder="e.g. 100" id="eng" name="eng"/>
+    </div>
+    <div class="large-2 medium-2 cell">
+      <label>物理</label>
+      <input type="text" placeholder="e.g. 100" id="phy" name="phy"/>
+    </div>
+    <div class="large-2 medium-2 cell">
+      <label>化学</label>
+      <input type="text" placeholder="e.g. 100" id="che" name="che"/>
+    </div>
+    <div class="large-2 medium-2 cell">
+      <label>总成绩</label>
+      <input type="text" placeholder="e.g. 500" id="all"/>
+    </div>
+  </div>
+</form>
+<div class="reveal" id="saveModel" data-reveal data-close-on-click="true" data-animation-in="hinge-in-from-middle-x fast" data-animation-out="hinge-out-from-middle-x fast">
+  <h3 id="model-h"></h3>
+  <p id="model-p"></p>
+  <button class="success button" type="button" id="model-b" data-close aria-label="Close reveal">关闭</button>
+</div>
+<div class="grid-container fluid">
+  <div class="grid-x grid-padding-x">
+    <div class="small-6 small-centered cell">
+      <button type="button" class="success button" data-toggle="saveModel" onclick="CheckStu();">
+        保存数据
+      </button>
+    </div>
+    <div class="small-6 small-centered cell">
+      <button type="button" class="alert button" onclick="ResetAll();">
+        重置全部
+      </button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra %}
+<script>
+  function IsNumber(num){
+    var reg = /^[0-9]*$/;
+    return reg.test(num);
+  }
+  function ResetAll(){
+    $("#stuform").find("input").val("");
+  }
+  function CheckStu(){
+    var num = $("#num").val();
+    var name = $("#name").val();
+    var chi = $("#chi").val();
+    var mat = $("#mat").val();
+    var eng = $("#eng").val();
+    var phy = $("#phy").val();
+    var che = $("#che").val();
+    var all = $("#all").val();
+    if(!IsNumber(num) || num==""){$("#model-h").html("提交失败");$("#model-p").html("考号输入错误!");$("#model-b").attr("class","alert button");return false;}
+    if(name==""){$("#model-h").html("提交失败");$("#model-p").html("姓名输入错误!");$("#model-b").attr("class","alert button");return false;}
+    if(!IsNumber(chi) || chi==""){$("#model-h").html("提交失败");$("#model-p").html("语文成绩输入错误!");$("#model-b").attr("class","alert button");return false;}
+    if(!IsNumber(mat) || mat==""){$("#model-h").html("提交失败");$("#model-p").html("数学成绩输入错误!");$("#model-b").attr("class","alert button");return false;}
+    if(!IsNumber(eng) || eng==""){$("#model-h").html("提交失败");$("#model-p").html("英语成绩输入错误!");$("#model-b").attr("class","alert button");return false;}
+    if(!IsNumber(phy) || phy==""){$("#model-h").html("提交失败");$("#model-p").html("物理成绩输入错误!");$("#model-b").attr("class","alert button");return false;}
+    if(!IsNumber(che) || che==""){$("#model-h").html("提交失败");$("#model-p").html("化学成绩输入错误!");$("#model-b").attr("class","alert button");return false;}
+    if(!IsNumber(all) || all=="" || parseInt(all) !== parseInt(chi)+parseInt(mat)+parseInt(eng)+parseInt(phy)+parseInt(che)){$("#model-h").html("提交失败");$("#model-p").html("总成绩输入错误(也可能是之前某一科输错了)!");$("#model-b").attr("class","alert button");return false;}
+    $("#model-h").html("提交成功");
+    $("#model-p").html("恭喜你，你成功的提交了一条数据!");
+    $("#model-b").attr("class","success button");
+    $("#stuform").ajaxSubmit(function(message){});
+    ResetAll();
+    return true;
+  }
+</script>
+{% endblock %}

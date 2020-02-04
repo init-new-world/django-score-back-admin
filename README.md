@@ -9,4 +9,8 @@ GPL V3.
 
 # backend-sql
 Username: admin
+
 Password: djangoadmin
+
+# author
+Init\_new\_world

@@ -1,0 +1,57 @@
+<!DOCTYPE HTML>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>学生成绩管理系统-1234567-Init_new_world</title>
+  <link href="/static/css/foundation.min.css" rel="stylesheet">
+  <link href="/static/css/app.css" rel="stylesheet">
+  <link href="/static/css/font-awesome.min.css" rel="stylesheet">
+  <link href="/static/css/github-markdown.css" rel="stylesheet">
+  <script src="/static/js/jquery.min.js"></script>
+  <script src="/static/js/jquery.form.js"></script>
+  <script src="/static/js/vendor/foundation.min.js"></script>
+  <script src="/static/js/highcharts.js"></script>
+  <script src="/static/js/data.js"></script>
+</head>
+<body>
+  <div class="cell">
+    <div class="off-canvas-wrapper">
+      <div class="off-canvas position-left" id="offCanvasLeft" data-off-canvas data-position="left">
+        <ul class="vertical menu accordion-menu" data-accordion-menu>
+          <li>
+            <a href="/index"><i class="fa fa-home">主页</i></a>
+          </li>
+          <li>
+            <a href="#"><i class="fa fa-database">数据库操作</i></a>
+            <ul class="menu vertical nested">
+              <li><a href="/add">添加记录</a></li>
+              <li><a href="/search">查询/修改/删除记录</a></li>
+              <li><a href="/search-if">条件查询记录</a></li>
+            </ul>
+          </li>
+          <li>
+            <a href="#"><i class="fa fa-area-chart">数据分析</i></a>
+            <ul class="menu vertical nested">
+              <li><a href="/analysis">总成绩分析</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+      <div class="off-canvas-content" data-off-canvas-content>
+        <div class="title-bar">
+          <div class="title-bar-left">
+            <button class="menu-icon" type="button" data-toggle="offCanvasLeft"></button>
+            <span class="title-bar-title">学生成绩管理系统-1234567-Init_new_world</span>
+          </div>
+        </div>
+        {% block main %}
+        {% endblock %}
+      </div>
+    </div>
+  </div>
+  <script src="/static/js/app.js"></script>
+  {% block extra %}
+  {% endblock %}
+</body>
+</html>

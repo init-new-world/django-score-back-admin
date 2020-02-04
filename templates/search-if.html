@@ -1,0 +1,192 @@
+{% extends "layout.html" %}
+
+{% block main %}
+<h1 style="text-align:center;">条件查询记录</h1>
+<p style="text-align:center;">可以利用条件查询/修改/删除记录(留空则忽视该条件),点击按钮增加或减少条件</p>
+<div id="tabcnt" style="display:none;">1</div>
+<div>
+  <button type="button" class="success button" onclick="AddCond();">新增条件</button>
+  <button type="button" class="warning button" onclick="SearchCond();">查询条件</button>
+</div>
+<table>
+  <thead>
+    <tr>
+      <th>字段</th>
+      <th>条件</th>
+      <th>输入</th>
+      <th>删除</th>
+    </tr>
+  </thead>
+  <tbody id="cond-body">
+    <tr id="row-1">
+      <td>
+        <select id="select-1">
+          <option value="num">考号</option>
+          <option value="chi">语文</option>
+          <option value="mat">数学</option>
+          <option value="eng">英语</option>
+          <option value="phy">物理</option>
+          <option value="che">化学</option>
+          <option value="all">总成绩</option>
+        </select>
+      </td>
+      <td>
+        <select id="select-2">
+          <option value="up">大于</option>
+          <option value="equal">等于</option>
+          <option value="down">小于</option>
+          <option value="up-equal">大于等于</option>
+          <option value="down-equal">小于等于</option>
+        </select>
+      </td>
+      <td><input name="val" id="val" type="text" placeholder="Input the num..."></input></td>
+      <td><button type="button" class="alert button" onclick="DelCond(1);">删除条件</td>
+    </tr>
+  </tbody>
+</table>
+<form action="/api-search/" id="stuform" method="post">{% csrf_token %}</form>
+<div id="scancharts" style="overflow-x:hidden;display:none;">
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>考号</th>
+        <th>姓名</th>
+        <th>语文</th>
+        <th>数学</th>
+        <th>英语</th>
+        <th>物理</th>
+        <th>化学</th>
+        <th>总成绩</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody id="show-charts">
+    </tbody>
+  </table>
+</div>
+<div class="reveal" id="confirmModel" data-reveal data-close-on-click="true" data-animation-in="slide-in-up" data-animation-out="slide-out-up">
+  <div id="frm-sub" style="display:none;"><form id="frm" style="display:none;" method="post"></form></div>
+  <h3 id="model-c-h">操作确认</h3>
+  <p id="model-c-p">真的要这么操作么?</p>
+  <div class="grid-container fluid">
+    <div class="grid-x grid-padding-x">
+      <div class="small-4 small-centered cell">
+        <button class="success button" type="button" id="model-c-ok" data-close aria-label="Close reveal">确认</button>
+        <button class="alert button" type="button" id="model-c-cancel" data-close aria-label="Close reveal">取消</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra %}
+<script>
+  function AddCond(){
+    $("#tabcnt").text(String(parseInt($("#tabcnt").text()) + 1));
+    var cnt = parseInt($("#tabcnt").text());
+    var html = "<tr id=\"row-" + cnt + "\">";
+    html += "<td><select id=\"select-1\">";
+    html += "<option value=\"num\">考号</option><option value=\"chi\">语文</option><option value=\"mat\">数学</option><option value=\"eng\">英语</option><option value=\"phy\">物理</option><option value=\"che\">化学</option><option value=\"all\">总成绩</option></select></td>";
+    html += "<td><select id=\"select-2\">";
+    html += "<option value=\"up\">大于</option><option value=\"equal\">等于</option><option value=\"down\">小于</option><option value=\"up-equal\">大于等于</option><option value=\"down-equal\">小于等于</option></select></td>";
+    html += "<td><input name=\"val\" id=\"val\" type=\"text\" placeholder=\"Input the num...\"></input></td>";
+    html += "<td><button type=\"button\" class=\"alert button\" onclick=\"DelCond(" + cnt + ");\">删除条件</td></tr>";
+    $("#cond-body").append(html);
+  }
+  function DelCond(id){
+    $("#row-"+String(id)).remove();
+  }
+  function SearchCond(){
+    $("#scancharts").fadeOut();
+    $("#stuform").ajaxSubmit(function(message){
+      var obj = eval("("+message+")");
+      obj = eval("("+obj.data+")");
+      var html = "";
+      $("#show-charts").empty();
+      for(var i=0;i<obj.length;i++){
+        var flag = true;
+        $("#cond-body").find("tr").each(function(id,vals){
+          if(flag == false)return false;
+          var con = $(vals).find("#select-1").val();
+          var met = $(vals).find("#select-2").val();
+          var val = $(vals).find("#val").val();
+          if(val == "")return true;
+          else {
+            if(met == "up"){if(obj[i].fields[con]<=parseInt(val)){flag=false;return false;}}
+            if(met == "equal"){if(obj[i].fields[con]!=parseInt(val)){flag=false;return false;}}
+            if(met == "down"){if(obj[i].fields[con]>=parseInt(val)){flag=false;return false;}}
+            if(met == "up-equal"){if(obj[i].fields[con]<parseInt(val)){flag=false;return false;}}
+            if(met == "down-equal"){if(obj[i].fields[con]>parseInt(val)){flag=false;return false;}}
+          }
+        });
+        if(flag == false)continue;
+        html += "<tr id=\"row-" + obj[i].pk + "\">";
+        html += "<td id=\"pk\">" + obj[i].pk + "</td>";
+        html += "<td><input name=\"num\" type=\"text\" value=\"" + obj[i].fields.num + "\" id=\"num\"></input></td>";
+        html += "<td><input name=\"name\" type=\"text\" value=\"" + obj[i].fields.name + "\" id=\"name\"></input></td>";
+        html += "<td><input name=\"chi\" type=\"text\" value=\"" + obj[i].fields.chi + "\" id=\"chi\"></input></td>";
+        html += "<td><input name=\"mat\" type=\"text\" value=\"" + obj[i].fields.mat + "\" id=\"mat\"></input></td>";
+        html += "<td><input name=\"eng\" type=\"text\" value=\"" + obj[i].fields.eng + "\" id=\"eng\"></input></td>";
+        html += "<td><input name=\"phy\" type=\"text\" value=\"" + obj[i].fields.phy + "\" id=\"phy\"></input></td>";
+        html += "<td><input name=\"che\" type=\"text\" value=\"" + obj[i].fields.che + "\" id=\"che\"></input></td>";
+        html += "<td>" + obj[i].fields.allscore + "</td>";
+        html += "<td><button class=\"success button\" type=\"button\" id=\"cng-" + obj[i].pk + "\" onclick=\"Cng(" + obj[i].pk + ");\" data-toggle=\"confirmModel\">修改</button>" + "<button class=\"alert button\" type=\"button\" id=\"del-" + obj[i].pk + "\" onclick=\"Del(" + obj[i].pk + ");\" data-toggle=\"confirmModel\">删除</button>" + "</td>";
+        html += "</tr>";    
+      }
+      //console.log(html);
+      $("#show-charts").append(html);
+    });
+    $("#scancharts").fadeIn();
+    return true;
+  }
+</script>
+<script>
+  function Cng(id){
+    $("#model-c-ok").attr("onclick","Cng2(" + id + ");");
+    var Tab = "{% csrf_token %}";
+    Tab += "<input name=\"pk\" type=\"text\" style=\"display:none;\" value=\"" + $("#row-"+String(id)).find("#pk").text() + "\"></input>";
+    Tab += "<input name=\"num\" type=\"text\" style=\"display:none;\" value=\"" + $("#row-"+String(id)).find("#num").val() + "\"></input>";
+    Tab += "<input name=\"name\" type=\"text\" style=\"display:none;\" value=\"" + $("#row-"+String(id)).find("#name").val() + "\"></input>";
+    Tab += "<input name=\"chi\" type=\"text\" style=\"display:none;\" value=\"" + $("#row-"+String(id)).find("#chi").val() + "\"></input>";
+    Tab += "<input name=\"mat\" type=\"text\" style=\"display:none;\" value=\"" + $("#row-"+String(id)).find("#mat").val() + "\"></input>";
+    Tab += "<input name=\"eng\" type=\"text\" style=\"display:none;\" value=\"" + $("#row-"+String(id)).find("#eng").val() + "\"></input>";
+    Tab += "<input name=\"phy\" type=\"text\" style=\"display:none;\" value=\"" + $("#row-"+String(id)).find("#phy").val() + "\"></input>";
+    Tab += "<input name=\"che\" type=\"text\" style=\"display:none;\" value=\"" + $("#row-"+String(id)).find("#che").val() + "\"></input>";
+    $("#frm").html(Tab);
+    $("#frm").attr("action","/api-cng/");
+  }
+  function Del(id){
+    $("#model-c-ok").attr("onclick","Del2(" + id + ");");
+    var Tab = "{% csrf_token %}";
+    Tab += "<input name=\"pk\" type=\"text\" style=\"display:none;\" value=\"" + $("#row-"+String(id)).find("#pk").text() + "\"></input>";
+    Tab += "<input name=\"num\" type=\"text\" style=\"display:none;\" value=\"" + $("#row-"+String(id)).find("#num").val() + "\"></input>";
+    Tab += "<input name=\"name\" type=\"text\" style=\"display:none;\" value=\"" + $("#row-"+String(id)).find("#name").val() + "\"></input>";
+    Tab += "<input name=\"chi\" type=\"text\" style=\"display:none;\" value=\"" + $("#row-"+String(id)).find("#chi").val() + "\"></input>";
+    Tab += "<input name=\"mat\" type=\"text\" style=\"display:none;\" value=\"" + $("#row-"+String(id)).find("#mat").val() + "\"></input>";
+    Tab += "<input name=\"eng\" type=\"text\" style=\"display:none;\" value=\"" + $("#row-"+String(id)).find("#eng").val() + "\"></input>";
+    Tab += "<input name=\"phy\" type=\"text\" style=\"display:none;\" value=\"" + $("#row-"+String(id)).find("#phy").val() + "\"></input>";
+    Tab += "<input name=\"che\" type=\"text\" style=\"display:none;\" value=\"" + $("#row-"+String(id)).find("#che").val() + "\"></input>";
+    $("#frm").html(Tab);
+    $("#frm").attr("action","/api-del/");
+  }
+  function Sleep(delay) {
+    var start = (new Date()).getTime();
+    while((new Date()).getTime() - start < delay){
+      continue;
+    }
+  }
+  function Cng2(id){
+    $("#frm").ajaxSubmit(function(message){});
+    $("#scancharts").fadeOut();
+    Sleep(200);
+    SearchCond();
+  }
+  function Del2(id){
+    $("#frm").ajaxSubmit(function(message){});
+    $("#scancharts").fadeOut();
+    Sleep(200);
+    SearchCond();
+  }
+</script>
+{% endblock %}

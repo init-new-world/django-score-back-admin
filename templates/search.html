@@ -1,0 +1,254 @@
+{% extends "layout.html" %}
+
+{% block main %}
+<h1 style="text-align:center;">查询/修改/删除记录</h1>
+<p style="text-align:center;">可以查询记录(可以留空,全部留空为直接查整张表),随后对记录进行修改/删除操作,查询完可以点击标题进行排序</p>
+<form action="/api-search/" id="stuform" method="post">
+  {% csrf_token %}
+  <div class="grid-x grid-padding-x">
+    <div class="large-6 medium-6 cell">
+      <label>考号</label>
+      <input type="text" placeholder="e.g. 1234567" id="num" name="num"/>
+    </div>
+    <div class="large-6 medium-6 cell">
+      <label>姓名</label>
+      <input type="text" placeholder="e.g. Init_new_world" id="name" name="name"/>
+    </div>
+  </div>
+  <div class="grid-x grid-padding-x">
+    <div class="large-2 medium-2 cell">
+      <label>语文</label>
+      <input type="text" placeholder="e.g. 100" id="chi" name="chi"/>
+    </div>
+    <div class="large-2 medium-2 cell">
+      <label>数学</label>
+      <input type="text" placeholder="e.g. 100" id="mat" name="mat"/>
+    </div>
+    <div class="large-2 medium-2 cell">
+      <label>英语</label>
+      <input type="text" placeholder="e.g. 100" id="eng" name="eng"/>
+    </div>
+    <div class="large-2 medium-2 cell">
+      <label>物理</label>
+      <input type="text" placeholder="e.g. 100" id="phy" name="phy"/>
+    </div>
+    <div class="large-2 medium-2 cell">
+      <label>化学</label>
+      <input type="text" placeholder="e.g. 100" id="che" name="che"/>
+    </div>
+    <div class="large-2 medium-2 cell">
+      <label>总成绩</label>
+      <input type="text" placeholder="e.g. 500" id="all"/>
+    </div>
+  </div>
+</form>
+<div class="reveal" id="scanModel" data-reveal data-close-on-click="true" data-animation-in="hinge-in-from-middle-x fast" data-animation-out="hinge-out-from-middle-x fast">
+  <h3 id="model-h"></h3>
+  <p id="model-p"></p>
+  <button class="success button" type="button" id="model-b" data-close aria-label="Close reveal">关闭</button>
+</div>
+<div class="grid-container fluid">
+  <div class="grid-x grid-padding-x">
+    <div class="small-6 small-centered cell">
+      <button type="button" class="success button" data-toggle="scanModel" onclick="CheckStu();">
+        查询数据
+      </button>
+    </div>
+    <div class="small-6 small-centered cell">
+      <button type="button" class="alert button" onclick="ResetAll();">
+        重置全部
+      </button>
+    </div>
+  </div>
+</div>
+<div id="scancharts" style="overflow-x:hidden;display:none;">
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>考号</th>
+        <th>姓名</th>
+        <th>语文</th>
+        <th>数学</th>
+        <th>英语</th>
+        <th>物理</th>
+        <th>化学</th>
+        <th>总成绩</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+</div>
+<div class="reveal" id="confirmModel" data-reveal data-close-on-click="true" data-animation-in="slide-in-up" data-animation-out="slide-out-up">
+  <div id="frm-sub" style="display:none;"><form id="frm" style="display:none;" method="post"></form></div>
+  <h3 id="model-c-h">操作确认</h3>
+  <p id="model-c-p">真的要这么操作么?</p>
+  <div class="grid-container fluid">
+    <div class="grid-x grid-padding-x">
+      <div class="small-4 small-centered cell">
+        <button class="success button" type="button" id="model-c-ok" data-close aria-label="Close reveal">确认</button>
+        <button class="alert button" type="button" id="model-c-cancel" data-close aria-label="Close reveal">取消</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra %}
+<script>
+  function IsNumber(num){
+    var reg = /^[0-9]*$/;
+    return reg.test(num);
+  }
+  function ResetAll(){
+    $("#stuform").find("input").val("");
+  }
+  function CheckStu(){
+    var num = $("#num").val();
+    var name = $("#name").val();
+    var chi = $("#chi").val();
+    var mat = $("#mat").val();
+    var eng = $("#eng").val();
+    var phy = $("#phy").val();
+    var che = $("#che").val();
+    var all = $("#all").val();
+    $("#scancharts").fadeOut();
+    if(!IsNumber(num) && num!==""){$("#model-h").html("查询失败");$("#model-p").html("考号输入错误!");$("#model-b").attr("class","alert button");return false;}
+    if(!IsNumber(chi) && chi!==""){$("#model-h").html("查询失败");$("#model-p").html("语文成绩输入错误!");$("#model-b").attr("class","alert button");return false;}
+    if(!IsNumber(mat) && mat!==""){$("#model-h").html("查询失败");$("#model-p").html("数学成绩输入错误!");$("#model-b").attr("class","alert button");return false;}
+    if(!IsNumber(eng) && eng!==""){$("#model-h").html("查询失败");$("#model-p").html("英语成绩输入错误!");$("#model-b").attr("class","alert button");return false;}
+    if(!IsNumber(phy) && phy!==""){$("#model-h").html("查询失败");$("#model-p").html("物理成绩输入错误!");$("#model-b").attr("class","alert button");return false;}
+    if(!IsNumber(che) && che!==""){$("#model-h").html("查询失败");$("#model-p").html("化学成绩输入错误!");$("#model-b").attr("class","alert button");return false;}
+    if(!IsNumber(all) && all!==""){$("#model-h").html("查询失败");$("#model-p").html("总成绩输入错误!");$("#model-b").attr("class","alert button");return false;}
+    $("#model-h").html("查询成功");
+    $("#model-p").html("恭喜你，你成功的进行了一次查询!");
+    $("#model-b").attr("class","success button");
+    $("#stuform").ajaxSubmit(function(message){
+      var obj = eval("("+message+")");
+      obj = eval("("+obj.data+")");
+      var html = "";
+      $("tbody").empty();
+      for(var i=0;i<obj.length;i++){
+        if(parseInt(num)!==obj[i].fields.num && num!=="")continue;
+        if(name!==obj[i].fields.name && name!=="")continue;
+        if(parseInt(chi)!==obj[i].fields.chi && chi!=="")continue;
+        if(parseInt(mat)!==obj[i].fields.mat && mat!=="")continue;
+        if(parseInt(eng)!==obj[i].fields.eng && eng!=="")continue;
+        if(parseInt(phy)!==obj[i].fields.phy && phy!=="")continue;
+        if(parseInt(che)!==obj[i].fields.che && che!=="")continue;
+        if(parseInt(all)!==obj[i].fields.allscore && all!=="")continue;
+        html += "<tr id=\"row-" + obj[i].pk + "\">";
+        html += "<td id=\"pk\">" + obj[i].pk + "</td>";
+        html += "<td><input name=\"num\" type=\"text\" value=\"" + obj[i].fields.num + "\" id=\"num\"></input></td>";
+        html += "<td><input name=\"name\" type=\"text\" value=\"" + obj[i].fields.name + "\" id=\"name\"></input></td>";
+        html += "<td><input name=\"chi\" type=\"text\" value=\"" + obj[i].fields.chi + "\" id=\"chi\"></input></td>";
+        html += "<td><input name=\"mat\" type=\"text\" value=\"" + obj[i].fields.mat + "\" id=\"mat\"></input></td>";
+        html += "<td><input name=\"eng\" type=\"text\" value=\"" + obj[i].fields.eng + "\" id=\"eng\"></input></td>";
+        html += "<td><input name=\"phy\" type=\"text\" value=\"" + obj[i].fields.phy + "\" id=\"phy\"></input></td>";
+        html += "<td><input name=\"che\" type=\"text\" value=\"" + obj[i].fields.che + "\" id=\"che\"></input></td>";
+        html += "<td>" + obj[i].fields.allscore + "</td>";
+        html += "<td><button class=\"success button\" type=\"button\" id=\"cng-" + obj[i].pk + "\" onclick=\"Cng(" + obj[i].pk + ");\" data-toggle=\"confirmModel\">修改</button>" + "<button class=\"alert button\" type=\"button\" id=\"del-" + obj[i].pk + "\" onclick=\"Del(" + obj[i].pk + ");\" data-toggle=\"confirmModel\">删除</button>" + "</td>";
+        html += "</tr>";    
+      }
+      //console.log(html);
+      $("tbody").append(html);
+    });
+    $("#scancharts").fadeIn();
+    return true;
+  }
+</script>
+
+<script>
+  function Cng(id){
+    $("#model-c-ok").attr("onclick","Cng2(" + id + ");");
+    var Tab = "{% csrf_token %}";
+    Tab += "<input name=\"pk\" type=\"text\" style=\"display:none;\" value=\"" + $("#row-"+String(id)).find("#pk").text() + "\"></input>";
+    Tab += "<input name=\"num\" type=\"text\" style=\"display:none;\" value=\"" + $("#row-"+String(id)).find("#num").val() + "\"></input>";
+    Tab += "<input name=\"name\" type=\"text\" style=\"display:none;\" value=\"" + $("#row-"+String(id)).find("#name").val() + "\"></input>";
+    Tab += "<input name=\"chi\" type=\"text\" style=\"display:none;\" value=\"" + $("#row-"+String(id)).find("#chi").val() + "\"></input>";
+    Tab += "<input name=\"mat\" type=\"text\" style=\"display:none;\" value=\"" + $("#row-"+String(id)).find("#mat").val() + "\"></input>";
+    Tab += "<input name=\"eng\" type=\"text\" style=\"display:none;\" value=\"" + $("#row-"+String(id)).find("#eng").val() + "\"></input>";
+    Tab += "<input name=\"phy\" type=\"text\" style=\"display:none;\" value=\"" + $("#row-"+String(id)).find("#phy").val() + "\"></input>";
+    Tab += "<input name=\"che\" type=\"text\" style=\"display:none;\" value=\"" + $("#row-"+String(id)).find("#che").val() + "\"></input>";
+    $("#frm").html(Tab);
+    $("#frm").attr("action","/api-cng/");
+  }
+  function Del(id){
+    $("#model-c-ok").attr("onclick","Del2(" + id + ");");
+    var Tab = "{% csrf_token %}";
+    Tab += "<input name=\"pk\" type=\"text\" style=\"display:none;\" value=\"" + $("#row-"+String(id)).find("#pk").text() + "\"></input>";
+    Tab += "<input name=\"num\" type=\"text\" style=\"display:none;\" value=\"" + $("#row-"+String(id)).find("#num").val() + "\"></input>";
+    Tab += "<input name=\"name\" type=\"text\" style=\"display:none;\" value=\"" + $("#row-"+String(id)).find("#name").val() + "\"></input>";
+    Tab += "<input name=\"chi\" type=\"text\" style=\"display:none;\" value=\"" + $("#row-"+String(id)).find("#chi").val() + "\"></input>";
+    Tab += "<input name=\"mat\" type=\"text\" style=\"display:none;\" value=\"" + $("#row-"+String(id)).find("#mat").val() + "\"></input>";
+    Tab += "<input name=\"eng\" type=\"text\" style=\"display:none;\" value=\"" + $("#row-"+String(id)).find("#eng").val() + "\"></input>";
+    Tab += "<input name=\"phy\" type=\"text\" style=\"display:none;\" value=\"" + $("#row-"+String(id)).find("#phy").val() + "\"></input>";
+    Tab += "<input name=\"che\" type=\"text\" style=\"display:none;\" value=\"" + $("#row-"+String(id)).find("#che").val() + "\"></input>";
+    $("#frm").html(Tab);
+    $("#frm").attr("action","/api-del/");
+  }
+  function Sleep(delay) {
+    var start = (new Date()).getTime();
+    while((new Date()).getTime() - start < delay){
+      continue;
+    }
+  }
+  function Cng2(id){
+    //console.log("Change");
+    //console.log(id);
+    $("#frm").ajaxSubmit(function(message){});
+    $("#scancharts").fadeOut();
+    Sleep(200);
+    CheckStu();
+  }
+  function Del2(id){
+    //console.log("Delete");
+    //console.log(id);
+    $("#frm").ajaxSubmit(function(message){});
+    $("#scancharts").fadeOut();
+    Sleep(200);
+    CheckStu();
+  }
+</script>
+
+<script>
+  $(document).ready(function(){
+    var sort_dir=1;
+    $("th").each(function(self){
+      $(this).click(function(){
+        sort_dir *= -1;
+        var tarr = $("table").find("tbody>tr").get();
+        var test = true;
+        if($(this).text() == "姓名")test = false;
+        //console.log($(this).text());
+        tarr.sort(function(a,b){
+          var col1=0;
+          var col2=0;
+          if($(a).children("td").eq(self).children("input").length == 0){
+            if(!test)col1 = $(a).children("td").eq(self).text().toUpperCase();
+            else col1 = parseInt($(a).children("td").eq(self).text());
+          }
+          else {
+            if(!test)col1 = $(a).children("td").eq(self).children("input").val().toUpperCase();
+            else col1 = parseInt($(a).children("td").eq(self).children("input").val());
+          }
+          if($(b).children("td").eq(self).children("input").length == 0){
+            if(!test)col2 = $(b).children("td").eq(self).text().toUpperCase();
+            else col2 = parseInt($(b).children("td").eq(self).text());
+          }
+          else {
+            if(!test)col2 = $(b).children("td").eq(self).children("input").val().toUpperCase();
+            else col2 = parseInt($(b).children("td").eq(self).children("input").val());
+          }
+          return (col1<col2)?-sort_dir:(col1>col2)?sort_dir:0;
+        });
+        $.each(tarr,function(i,row){
+          $("tbody").append(row);
+        });
+      });
+    });
+  });
+</script>
+{% endblock %}
