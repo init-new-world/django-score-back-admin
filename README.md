@@ -7,3 +7,6 @@ It is my homework about Python Programme last year(2019). Open source just for f
 # license
 GPL V3.
 
+# backend-sql
+Username: admin
+Password: djangoadmin
