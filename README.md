@@ -12,5 +12,13 @@ Username: admin
 
 Password: djangoadmin
 
+# used tools
+jQuery
+Foundation
+HighCharts
+Canvas-nest
+FontAwesome
+github-markdown
+
 # author
 Init\_new\_world
